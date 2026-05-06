@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>buyz</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: #ff5722;
+            color: white;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h3 {
+            margin: 0;
+        }
+
+        .search-container {
+            padding: 10px;
+            background: #ff5722;
+        }
+
+        .search {
+            width: 95%;
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+        }
+
+        .page {
+            display: none;
+            padding-bottom: 80px;
+        }
+
+        .active {
+            display: block;
+        }
+
+        #products {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .card {
+            background: white;
+            margin: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            width: calc(50% - 30px);
+            min-width: 220px;
+            max-width: 260px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .card h3,
+        .card p {
+            padding-left: 10px;
+            margin: 5px 0;
+        }
+
+        .card .details {
+            padding: 10px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 5px 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add {
+            background: green;
+            color: white;
+        }
+
+        .qty {
+            background: #ddd;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #ff5722;
+            font-weight: bold;
+        }
+
+        .cancel-btn {
+            background: #ff4444;
+            color: white;
+            font-size: 12px;
+        }
+
+        .bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            display: flex;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .bottom button {
+            flex: 1;
+            padding: 15px;
+            background: white;
+            border: none;
+        }
+
+        .cat {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+        }
+
+        .cat button {
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+
+        #orderList li {
+            background: white;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 8px;
+            list-style: none;
+            border-left: 5px solid #ff5722;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>🍔 BUYZONE</h1>
+        <button id="logoutBtn" class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="search-container" id="searchBar">
+        <input class="search" placeholder="Search food..." onkeyup="search(this.value)">
+    </div>
+
+    <div id="home" class="page active">
+        <div style="padding: 5px;">
+            <h2>Welcome <span id="user"></span></h2>
+            <div class="cat">
+                <button onclick="filterCat('')">All</button>
+                <button onclick="filterCat('biryani')">Biryani</button>
+                <button onclick="filterCat('pizza')">Pizza</button>
+                <button onclick="filterCat('burger')">Burger</button>
+            </div>
+        </div>
+        <div id="products"></div>
+    </div>
+
+    <div id="cart" class="page">
+        <h2 style="padding-left:5px;">Your Cart</h2>
+        <ul id="cartItems"></ul>
+        <div style="padding: 15px;">
+            <h3>Total: ₹<span id="total">0</span></h3>
+            <button onclick="placeOrder()" style="background:green; color:white; width:100%; padding:10px;">Place
+                Order</button>
+        </div>
+    </div>
+
+    <div id="orders" class="page">
+        <h2 style="padding-left:20px;">Your Orders</h2>
+        <div id="orderList"></div>
+    </div>
+
+    <div class="bottom" id="navBar">
+        <button onclick="show('home')">Home</button>
+        <button onclick="show('cart')">Cart</button>
+        <button onclick="show('orders')">Orders</button>
+    </div>
+
+    <script>
+        let products = [
+            { name: "Biryani", price: 200, img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80" },
+            { name: "Pizza", price: 250, img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&q=80" },
+            { name: "Burger", price: 150, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80" },
+            { name: "Fried Rice", price: 180, img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&q=80" },
+            { name: "Chicken", price: 220, img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=400&q=80" },
+            { name: "Noodles", price: 140, img: "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&q=80" },
+            { name: "Cake", price: 200, img: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80" },
+            { name: "Sandwich", price: 130, img: "https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=80" },
+            { name: "Salad", price: 120, img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=400&q=80" },
+            { name: "Sushi", price: 280, img: "https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&q=80" },
+            { name: "Ice Cream", price: 110, img: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" },
+            { name: "Tacos", price: 160, img: "https://images.unsplash.com/photo-1552332386-f8dd00dc2f85?w=400&q=80" },
+            { name: "Wrap", price: 140, img: "https://images.unsplash.com/photo-1543353071-873f17a7a088?w=400&q=80" }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem("cart")) || {};
+        let orders = JSON.parse(localStorage.getItem("orders")) || [];
+
+        window.onload = function () {
+            let user = localStorage.getItem("user");
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+            document.getElementById("user").innerText = user;
+            loadProducts(products);
+            updateCart();
+            loadOrders();
+        }
+
+        function logout() {
+            if (confirm("Are you sure you want to logout?")) {
+                localStorage.removeItem("user");
+                window.location.href = "login.html";
+            }
+        }
+
+        function show(id) {
+            document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+            document.getElementById(id).classList.add("active");
+        }
+
+        function loadProducts(list) {
+            let html = "";
+            list.forEach((p, i) => {
+                let mainIdx = products.findIndex(item => item.name === p.name);
+                html += `
+        <div class="card" onclick="toggleDetails(this)">
+            <img src="${p.img}" alt="${p.name}" onclick="viewImage(this.src); event.stopPropagation();" style="cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding-right:10px;">
+                <h3>${p.name}</h3>
+                <span style="background:#ffc107; padding:2px 6px; border-radius:4px; font-size:14px; font-weight:bold;">⭐ ${p.rating || '4.5'}</span>
+            </div>
+            <div class="details" style="display:none; padding:10px; background:#f9f9f9; margin-top:10px; border-top: 1px solid #ddd;">
+                <p style="color:#e91e63; font-weight:bold; margin-top:0;">Cost: ₹${p.price}</p>
+                <p style="margin:5px 0;"><strong>Description:</strong> Enjoy our delicious ${p.name}! Made with fresh ingredients and served hot.</p>
+                <p style="margin:5px 0;"><strong>Reviews:</strong> ${p.reviews || '24'} customers reviewed this item.</p>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding: 0 10px 10px 10px; margin-top:5px;">
+                <p style="color:#e91e63; font-weight:bold; margin:0;">₹${p.price}</p>
+                <button class="add" onclick="add(${mainIdx}); event.stopPropagation();">Add to Cart</button>
+            </div>
+        </div>`;
+            });
+            document.getElementById("products").innerHTML = html;
+        }
+
+        function toggleDetails(card) {
+            let details = card.querySelector('.details');
+            details.style.display = details.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function viewImage(src) {
+            window.open(src, '_blank');
+        }
+
+        function add(i) {
+            let p = products[i];
+            if (cart[p.name]) cart[p.name].qty++;
+            else cart[p.name] = { price: p.price, qty: 1 };
+            saveCart(); updateCart();
+            alert(p.name + " added!");
+        }
+
+        function changeQty(name, val) {
+            if (cart[name]) {
+                cart[name].qty += val;
+                if (cart[name].qty <= 0) delete cart[name];
+            }
+            saveCart(); updateCart();
+        }
+
+        function updateCart() {
+            let html = ""; let total = 0;
+            for (let n in cart) {
+                let item = cart[n];
+                let sum = item.price * item.qty;
+                total += sum;
+                html += `
+        <li style="padding:10px; border-bottom:1px solid #ddd; list-style:none;">
+            <b>${n}</b> - ₹${item.price} x ${item.qty} = ₹${sum} <br>
+            <button onclick="changeQty('${n}',1)">+</button>
+            <button onclick="changeQty('${n}',-1)">-</button>
+        </li>`;
+            }
+            document.getElementById("cartItems").innerHTML = html || "<p style='padding:15px;'>Cart is empty</p>";
+            document.getElementById("total").innerText = total;
+        }
+
+        function saveCart() {
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
+
+        function search(val) {
+            let f = products.filter(p => p.name.toLowerCase().includes(val.toLowerCase()));
+            loadProducts(f);
+        }
+
+        function filterCat(cat) {
+            let f = products.filter(p => p.name.toLowerCase().includes(cat));
+            loadProducts(f);
+        }
+
+        function placeOrder() {
+            if (Object.keys(cart).length == 0) return alert("Cart empty");
+            orders.push({ items: { ...cart }, date: new Date().toLocaleString() });
+            localStorage.setItem("orders", JSON.stringify(orders));
+            cart = {}; saveCart(); updateCart();
+            alert("Order placed ✅");
+            loadOrders();
+            show("orders");
+        }
+
+        function loadOrders() {
+            let html = "";
+            if (orders.length === 0) {
+                html = "<p style='padding:15px;'>No orders yet.</p>";
+            } else {
+                orders.forEach((o, i) => {
+                    html += `
+            <li>
+                <strong>Order #${i + 1}</strong> <br>
+                <small>${o.date}</small> <br>
+                <button class="cancel-btn" onclick="cancelOrder(${i})">Cancel Order</button>
+            </li>`;
+                });
+            }
+            document.getElementById("orderList").innerHTML = html;
+        }
+
+        function cancelOrder(index) {
+            if (confirm("Do you want to cancel this order?")) {
+                orders.splice(index, 1);
+                localStorage.setItem("orders", JSON.stringify(orders));
+                loadOrders();
+            }
+        }
+    </script>
+
+</body>
+
+</html>
