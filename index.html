@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BuyZone - Premium Food Delivery App">
+    <meta name="theme-color" content="#ff5722">
+    <title>BuyZone - Premium Food Delivery</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <h1 class="logo">🍔 BuyZone</h1>
+            <div class="header-actions">
+                <span class="user-info" id="userInfo"></span>
+                <div class="header-links">
+                    <a href="buyzone1.html">BuyZone1</a>
+                    <a href="home.html">Legacy Home</a>
+                </div>
+                <button id="logoutBtn" class="btn-logout" aria-label="Logout">
+                    <span class="icon">🚪</span> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input 
+            type="search" 
+            class="search-input" 
+            id="searchInput"
+            placeholder="🔍 Search food items..." 
+            aria-label="Search food items"
+        >
+        <div class="search-filters" id="filterButtons"></div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-container">
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="welcome-section">
+                <h2>Welcome back, <span id="userName" class="highlight">Guest</span>!</h2>
+                <p class="subtitle">Discover delicious meals delivered to your door</p>
+            </div>
+            <div id="products" class="products-grid"></div>
+            <div id="loadingSpinner" class="loading-spinner" style="display:none;">
+                <div class="spinner"></div>
+                <p>Loading meals...</p>
+            </div>
+        </section>
+
+        <!-- Cart Page -->
+        <section id="cart" class="page">
+            <h2>🛒 Your Cart</h2>
+            <div id="cartItems" class="cart-items-container">
+                <p class="empty-message">Your cart is empty. Add some delicious food!</p>
+            </div>
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span id="subtotal">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Fee:</span>
+                    <span id="deliveryFee">₹30</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="total">₹0</span>
+                </div>
+                <button id="placeOrderBtn" class="btn-primary btn-full" onclick="placeOrder()">
+                    Place Order
+                </button>
+            </div>
+        </section>
+
+        <!-- Orders Page -->
+        <section id="orders" class="page">
+            <h2>📋 Your Orders</h2>
+            <div id="orderList" class="orders-container">
+                <p class="empty-message">No orders yet. Start shopping!</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav" role="navigation">
+        <button class="nav-btn active" data-page="home" aria-label="Home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-btn" data-page="cart" aria-label="Cart">
+            <span class="nav-icon">🛒</span>
+            <span class="nav-label">Cart</span>
+            <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+        </button>
+        <button class="nav-btn" data-page="orders" aria-label="Orders">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Orders</span>
+        </button>
+    </nav>
+
+    <!-- Modal for Image Viewer -->
+    <div id="imageModal" class="modal">
+        <span class="close-modal">&times;</span>
+        <img class="modal-content" id="modalImage" alt="Food image">
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
